@@ -1,6 +1,7 @@
 #ifndef KOELSYNTH_SIGNAL_GENERATORS_H
 #define KOELSYNTH_SIGNAL_GENERATORS_H
 
+#include <cmath>
 #include <cassert>
 #include <stdexcept>
 
@@ -445,8 +446,6 @@ public:
     }
 
 };
-
-
 
 
 }
