@@ -30,6 +30,8 @@ class Sequencer {
     std::vector<FrameGenerator*> generators;
     // Frame size of processing
     size_t frame_size = DEFAULT_FRAME_SIZE;
+    // Apply gain for every sample
+    float gain = 1.0f;
 
     // Remove all the generators that has ended (also delete them).
     // Update the current generators with active ones.
@@ -46,14 +48,23 @@ class Sequencer {
     }
 
 public:
-    Sequencer() = default;
+    Sequencer(size_t frame_size_ = DEFAULT_FRAME_SIZE,
+              float gain_ = 1.0f) {
+        frame_size = frame_size_;
+        gain = gain_;
+    }
 
     void add(FrameGenerator *gen) {
+        gen->set_frame_size(frame_size);
         generators.push_back(gen);
     }
 
-    void set_frame_size(size_t frame_size_) {
-        frame_size = frame_size_;
+    size_t get_frame_size() {
+        return frame_size;
+    }
+
+    size_t get_generator_count() {
+        return generators.size();
     }
 
     std::vector<float> next_frame() {
@@ -70,6 +81,12 @@ public:
         }
         if (clean_generators) {
             remove_ended();
+        }
+        if (gain != 1.0f) {
+            // Apply amplitude adjustment (if needed)
+            for (auto &el: output) {
+                el *= gain;
+            }
         }
         return output;
     }

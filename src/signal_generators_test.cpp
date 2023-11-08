@@ -167,7 +167,7 @@ public:
 
         FmSynthGenerator fmsynth(
             mod_params, env_params, env_params,
-            compute_base_freq(440.0f, 16000.0f)
+            compute_phase_per_sample(440.0f, 16000.0f)
         );
         fmsynth.set_frame_size(frame_size);
 

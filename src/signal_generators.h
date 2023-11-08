@@ -4,6 +4,7 @@
 #include <cmath>
 #include <cassert>
 #include <stdexcept>
+#include <string>
 
 #include "frame_generator.h"
 
@@ -201,6 +202,24 @@ struct AdsrParams {
     size_t get_size() {
         return attack + decay + sustain + release;
     }
+
+    std::string to_string() {
+        std::string r;
+        r += "AdsrParams(attack=";
+        r += std::to_string(attack);
+        r += ", decay=";
+        r += std::to_string(decay);
+        r += ", sustain=";
+        r += std::to_string(sustain);
+        r += ", release=";
+        r += std::to_string(release);
+        r += ", slevel1=";
+        r += std::to_string(slevel1);
+        r += ", slevel2=";
+        r += std::to_string(slevel2);
+        r += ")";
+        return r;
+    }
 };
 
 
@@ -322,11 +341,34 @@ struct FmSynthModParams {
     // Amplitudes for harmonics.
     // Should be of the same length as harmonics above.
     std::vector<float> amps;
+
+    FmSynthModParams() = default;
+
+    FmSynthModParams(
+        std::vector<float> harmonics_, std::vector<float> amps_
+    ) {
+        if (harmonics_.size() != amps_.size()) {
+            throw std::invalid_argument("mismatch in sizes of harmonics and amps");
+        }
+        harmonics = harmonics_;
+        amps = amps_;
+    }
 };
 
 
-float compute_base_freq(float f, float fs) {
+float compute_phase_per_sample(float f, float fs) {
     return (2 * M_PI) * (f / fs);
+}
+
+
+float key2hz(float key) {
+    return 110.0f * powf(2.0f, (key / 12.0f));
+}
+
+
+float key_to_phase_per_sample(float key, float fs) {
+    float freq = key2hz(key);
+    return compute_phase_per_sample(freq, fs);
 }
 
 
@@ -349,7 +391,7 @@ class FmSynthGenerator: public FrameGenerator {
     // All frequencies below are per sample angle change.
 
     // Per sample angle change for base signal
-    float base_freq = 0;
+    float phase_rate = 0;
     // Per sample angle change for modulation components
     std::vector<float> mod_freq_vec;
 
@@ -360,13 +402,13 @@ class FmSynthGenerator: public FrameGenerator {
 
 public:
 
-    // base_freq_ -> per sample phase change for base frequency.
-    // base_freq_ = (f / fsamp) * 2pi
+    // phase_per_sample -> per sample phase change for base frequency.
+    // phase_per_sample = (f / fsamp) * 2pi
     FmSynthGenerator(
         FmSynthModParams mod_params_,
         AdsrParams mod_env_params_,
         AdsrParams env_params_,
-        float base_freq_
+        float phase_per_sample
     ) {
         if (mod_env_params_.get_size() != env_params_.get_size()) {
             throw std::invalid_argument("envelope sizes do not match");
@@ -379,13 +421,13 @@ public:
         mod_params = mod_params_;
         mod_env_gen = AdsrEnvelope(mod_env_params_);
         env_gen = AdsrEnvelope(env_params_);
-        base_freq = base_freq_;
+        phase_rate = phase_per_sample;
         base_phase = 0;
         size = env_params_.get_size();
 
         // Actual per-sample phase change for every component.
         for (auto mul: mod_params.harmonics) {
-            mod_freq_vec.push_back(mul * base_freq);
+            mod_freq_vec.push_back(mul * phase_rate);
         }
         // Phase to be updated after every sample. Starts at 0.
         mod_phase_vec.resize(mod_params.harmonics.size(), 0);
@@ -420,7 +462,7 @@ public:
         // Find the final modulating signal
         float mod_signal_value = 1 + comp_sum * mod_env;
         // Update final phase for the signal
-        base_phase += (base_freq * mod_signal_value);
+        base_phase += (phase_rate * mod_signal_value);
         // Envelope for the final signal
         float signal_env = env_gen.get_next_sample();
         // Convert to final signal

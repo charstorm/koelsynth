@@ -22,13 +22,9 @@ FmSynthModParams mod_params_base {
     .amps = {1, 3, 1}
 };
 
-float key2hz(float key) {
-    return 110.0f * powf(2.0f, (key / 12.0f));
-}
-
 void add_event(Sequencer &seq, size_t frame_size, float key) {
     float key_hz = key2hz(key);
-    float base_freq = compute_base_freq(key_hz, fs);
+    float base_freq = compute_phase_per_sample(key_hz, fs);
     int duration = 1 + rand() % 4;
     AdsrParams env_params = env_params_base;
     env_params.sustain *= duration;
