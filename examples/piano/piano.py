@@ -4,14 +4,12 @@ the keypresses, koelsynth to generate the audio, and pyaudio to play the
 generated audio.
 """
 
-import sys
 import threading
 import time
-import tty
-import termios
 
 import numpy as np
 import pyaudio
+from getch import getch
 
 import koelsynth
 
@@ -26,20 +24,8 @@ key_str_to_int: dict[str, int] = {}
 # Mapping of keyboard keys to piano keys
 key_remap: dict[str, str] = {}
 
-
-def getch():
-    """
-    Hacky black magic implementation of getch.
-    Caution!! Ctrl+c or Ctrl+z wont work!!
-    """
-    fd = sys.stdin.fileno()
-    old_settings = termios.tcgetattr(fd)
-    try:
-        tty.setraw(sys.stdin.fileno())
-        ch = sys.stdin.read(1)
-    finally:
-        termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
-    return ch
+# Supported keys
+input_keys = "q w e r t y u i o p"
 
 
 def build_key_str_map() -> None:
@@ -56,7 +42,7 @@ def build_key_remap() -> None:
     """
     Mapping keyboard keys to piano keys
     """
-    kb_keys = "q w e r t y u i o p".split()
+    kb_keys = input_keys.split()
     # pentatonic scale (b and f are omitted)
     piano_keys = "1c 1d 1e 1g 1a 2c 2d 2e 2g 2a".split()
     for kb_key, piano_key in zip(kb_keys, piano_keys):
@@ -119,14 +105,14 @@ def handle_key_press(
     lock: threading.Lock,
 ) -> None:
     # FM Modulation parameters
-    synth_params = koelsynth.FmSynthModParams([2, 4, 8], [1, 1, 1])
+    synth_params = koelsynth.FmSynthModParams([2, 5, 9, 13], [1, 2, 1, 1])
     # Modulation envelope
     mod_env = koelsynth.AdsrParams(
         attack=200,
         decay=200,
         sustain=sample_rate,
         release=100,
-        slevel1=0.7,
+        slevel1=0.6,
         slevel2=0.1,
     )
     # Waveform envelope
@@ -135,14 +121,15 @@ def handle_key_press(
         decay=200,
         sustain=sample_rate,
         release=100,
-        slevel1=0.5,
+        slevel1=0.6,
         slevel2=0.1,
     )
     assert wav_env.get_size() == mod_env.get_size()
     # Setup curses interface (blank)
     time.sleep(2)
     print("\n" + "--" * 40)
-    print("Once started, use ` or ? to quit. Ctrl+C wont work!!")
+    print("Once started, use ` or ? to quit. Ctrl+C may not work!!")
+    print("Supported input keys:", input_keys)
     input("Press enter to start:")
     print(flush=True)
     while True:
@@ -158,6 +145,14 @@ def handle_key_press(
             sequencer.add_fmsynth(synth_params, mod_env, wav_env, phase_per_sample)
 
 
+def start_audio_processing_thread(
+    sequencer: koelsynth.Sequencer, lock: threading.Lock
+) -> None:
+    thread = threading.Thread(target=handle_sequencer_audio, args=(sequencer, lock))
+    thread.daemon = True
+    thread.start()
+
+
 def main():
     build_key_str_map()
     build_key_remap()
@@ -165,11 +160,7 @@ def main():
     print(key_remap)
     lock = threading.Lock()
     sequencer = koelsynth.Sequencer(frame_size, gain)
-    # Start the audio handling thread
-    thread = threading.Thread(target=handle_sequencer_audio, args=(sequencer, lock))
-    thread.daemon = True
-    thread.start()
-    # Manage keypress
+    start_audio_processing_thread(sequencer, lock)
     handle_key_press(sequencer, lock)
 
 
