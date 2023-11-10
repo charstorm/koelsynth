@@ -1,14 +1,20 @@
 
-#include "signal_generators.h"
-#include "sequencer.h"
-
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <pybind11/numpy.h>
 
+#include "signal_generators.h"
+#include "sequencer.h"
+
 namespace py = pybind11;
 using namespace pybind11::literals;
 using namespace signal;
+
+// ssize_t is note defined for msvc ...
+#if defined(_MSC_VER)
+#include <BaseTsd.h>
+typedef SSIZE_T ssize_t;
+#endif
 
 void add_fmsynth(
     Sequencer &seq,

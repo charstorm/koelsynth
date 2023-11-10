@@ -162,7 +162,13 @@ def handle_key_press(
     print(flush=True)
     while True:
         # Get input from keyboard
-        ch = getch()
+        ch_in = getch()
+        ch = ""
+        if isinstance(ch_in, bytes):
+            # In windows, it returns bytes (not string)
+            ch = ch_in.decode()
+        else:
+            ch = ch_in
         # Ctrl+C does not seem to work. We need a way to quit nicely.
         if ch == "`" or ch == "?":
             break

@@ -8,6 +8,10 @@
 
 #include "frame_generator.h"
 
+#ifndef M_PI
+    #define M_PI 3.14159265358979323846
+#endif
+
 template<typename T>
 float cf32(T val) {
     return static_cast<float>(val);
