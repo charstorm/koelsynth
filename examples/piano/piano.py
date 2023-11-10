@@ -121,7 +121,10 @@ def get_synth_params() -> (
     This is the function to play around with the sound texture.
     """
     # FM Modulation parameters
-    synth_params = koelsynth.FmSynthModParams([2, 5, 9, 13], [1, 2, 1, 1])
+    synth_params = koelsynth.FmSynthModParams(
+        harmonics=[2, 5, 9],
+        amps=[1, 2, 1]
+    )
     # Modulation envelope
     mod_env = koelsynth.AdsrParams(
         attack=200,

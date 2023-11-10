@@ -94,7 +94,7 @@ PYBIND11_MODULE(koelsynth, m) {
              "frame_size"_a = DEFAULT_FRAME_SIZE,
              "gain"_a = 1.0f)
         .def("add_fmsynth", &add_fmsynth, "Add FM synth event",
-            "mod_env_params"_a, "mod_env_params"_a,
+            "mod_params"_a, "mod_env_params"_a,
             "env_params"_a, "phase_per_sample"_a)
         .def("get_frame_size", &Sequencer::get_frame_size,
              "Return the frame size expected by the sequencer")
