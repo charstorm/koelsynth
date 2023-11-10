@@ -24,7 +24,7 @@ setup(
     long_description="",
     ext_modules=ext_modules,
     extras_require={},
-    install_requires=["pybind11"],
+    install_requires=["numpy>=1.26.1"],
     cmdclass={"build_ext": build_ext},
     zip_safe=False,
     python_requires=">=3.10",
