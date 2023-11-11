@@ -191,4 +191,7 @@ Notes:
 - `next(frame)` will always produce a frame. If there are no events, it will be zeros. Caller must handle the timing accordingly. Otherwise there will be a lot more samples than what the caller expected.
 
 ## Examples
-A simple real-time keyboard based piano app is provided as an example. See `examples/piano/`.
+Following examples are currently available.
+
+- A simple offline processing example. See `examples/simple/`
+- A simple real-time keyboard based piano app is provided as an example. See `examples/piano/`

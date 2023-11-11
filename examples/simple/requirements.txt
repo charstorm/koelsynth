@@ -1,0 +1,2 @@
+numpy
+git+https://github.com/charstorm/koelsynth.git@main
