@@ -8,9 +8,9 @@ It is better to install these before we setup a venv for the project.
 ### Linux
 The app uses PyAudio for playing the audio. We will need to install development libraries for portaudio and python3. Package names depend on the distro.
 
-The core of the Koelsynth library is written in C++. A compiler like g++ is required to build that. 
+The core of the Koelsynth library is written in C++. A compiler like g++ is required to build that.
 
-In my Debian system, I installed these by the following command. 
+In my Debian system, I installed these by the following command.
 
 ```bash
 sudo apt install build-essential portaudio19-dev python3-dev
@@ -27,11 +27,9 @@ I installed the above and everything else went fine.
 ## Install Python Packages
 We have to start by creating and enabling a venv.
 
-The `setup.py` used by Koelsynth uses pybind11. So we have to install pybind11 before we install those from requirements.
-We have to also install the `wheel` package to avoid some warnings from pip.
+Then install the requirements for this example.
 
 ```bash
-pip install wheel pybind11
 pip install -r requirements.txt
 ```
 
