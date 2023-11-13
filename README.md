@@ -154,10 +154,6 @@ Using Koelsynth to produce audio involves three steps:
 3. Getting audio frames from the sequencer
 
 ### Installation
-You may have to install the following packages before installing Koelsynth with pip.
-1. wheel (to avoid some warnings)
-2. pybind11 (used for wrapping C++)
-
 Add the following to your project's requirements.txt:
 ```
 git+https://github.com/charstorm/koelsynth.git@main
