@@ -21,10 +21,11 @@ void add_fmsynth(
     FmSynthModParams &mod_params,
     AdsrParams mod_env_params,
     AdsrParams env_params,
-    float base_freq
+    float base_freq,
+    float gain
 ) {
     auto gen = new FmSynthGenerator(
-        mod_params, mod_env_params, env_params, base_freq
+        mod_params, mod_env_params, env_params, base_freq, gain
     );
     seq.add(gen);
 }
@@ -95,7 +96,8 @@ PYBIND11_MODULE(koelsynth, m) {
              "gain"_a = 1.0f)
         .def("add_fmsynth", &add_fmsynth, "Add FM synth event",
             "mod_params"_a, "mod_env_params"_a,
-            "env_params"_a, "phase_per_sample"_a)
+            "env_params"_a, "phase_per_sample"_a,
+            "gain"_a = 1.0f)
         .def("get_frame_size", &Sequencer::get_frame_size,
              "Return the frame size expected by the sequencer")
         .def("get_generator_count", &Sequencer::get_generator_count,
@@ -104,17 +106,3 @@ PYBIND11_MODULE(koelsynth, m) {
              "array"_a);
 
 }
-
-// Following is used by cppimport
-#if 0
-<%
-cfg['compiler_args'] = ['-std=c++17', '-Wall', '-Wextra']
-cfg['dependencies'] = """
-frame_generator.h
-signal_generators.h
-sequencer.h
-""".split()
-cfg['sources'] = []
-setup_pybind11(cfg)
-%>
-#endif

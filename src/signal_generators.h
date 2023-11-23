@@ -404,15 +404,20 @@ class FmSynthGenerator: public FrameGenerator {
     // Phase values for modulation components
     std::vector<float> mod_phase_vec;
 
+    // gain for this event
+    float gain = 1.0f;
+
 public:
 
     // phase_per_sample -> per sample phase change for base frequency.
-    // phase_per_sample = (f / fsamp) * 2pi
+    //      phase_per_sample = (f / fsamp) * 2pi
+    // gain_ -> gain to be applied on the waveform for this event 
     FmSynthGenerator(
         FmSynthModParams mod_params_,
         AdsrParams mod_env_params_,
         AdsrParams env_params_,
-        float phase_per_sample
+        float phase_per_sample,
+        float gain_
     ) {
         if (mod_env_params_.get_size() != env_params_.get_size()) {
             throw std::invalid_argument("envelope sizes do not match");
@@ -428,6 +433,7 @@ public:
         phase_rate = phase_per_sample;
         base_phase = 0;
         size = env_params_.get_size();
+        gain = gain_;
 
         // Actual per-sample phase change for every component.
         for (auto mul: mod_params.harmonics) {
@@ -470,7 +476,7 @@ public:
         // Envelope for the final signal
         float signal_env = env_gen.get_next_sample();
         // Convert to final signal
-        float sig = sinf(base_phase) * signal_env;
+        float sig = sinf(base_phase) * signal_env * gain;
         // Update progress
         progress++;
         return sig;
