@@ -11,6 +11,7 @@ ext_modules = [
     Pybind11Extension(
         "koelsynth",
         source_files,
+        include_dirs=["src"],
     )
 ]
 
