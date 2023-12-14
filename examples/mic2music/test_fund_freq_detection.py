@@ -1,5 +1,3 @@
-"""Fundamental frequency detection"""
-
 import numpy as np
 import time
 
