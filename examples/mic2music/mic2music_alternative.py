@@ -18,7 +18,7 @@ fft_size = 1024
 
 
 # Subset of notes that will be used for the melody
-SCALE = "blues_minor"  # 'chromatic' (all 12) / 'major' / 'pentantonic' / 'blues_major' / 'blues_minor'
+SCALE = "blues_minor"  # 'chromatic' (all 12) / 'major' / 'pentatonic' / 'blues_major' / 'blues_minor'
 
 # Play some chords in the background to accompany your musical performance
 PLAY_BACKGROUND = True
